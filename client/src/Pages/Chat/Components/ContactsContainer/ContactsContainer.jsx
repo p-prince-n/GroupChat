@@ -1,32 +1,62 @@
+import ContactList from "../../../../components/ContactList";
+import { apiClient } from "../../../../lib/apiClient";
+import { useAppStore } from "../../../../Store";
+import { GET_DM_CONTACTS_ROUTE } from "../../../../utils/constants";
 import NewDM from "./Components/NewDM/NewDM";
 import ProfileInfo from "./Components/ProfileInfo/ProfileInfo";
-
+import { useEffect } from "react";
+import { toast } from "sonner";
 
 const ContactsContainer = () => {
+  const { setDirectMessagesContacts, directMessagesContacts } = useAppStore();
+  useEffect(() => {
+    const getContacts = async () => {
+      try {
+        const res = await apiClient.get(GET_DM_CONTACTS_ROUTE, {
+          withCredentials: true,
+        });
+        if (res.data.contacts) {
+          setDirectMessagesContacts(res.data.contacts);
+        }
+      } catch (e) {
+        const errorMessage =
+          e?.response?.data?.message ||
+          "Something went wrong. Please try again.";
+        toast.error(errorMessage);
+      }
+    };
+    getContacts();
+
+    return () => {};
+  }, []);
+
   return (
     <div className="relative md:w-[35vw] lg:w-[30vw] xl:w-[20vw] bg-[#1b1c24] border-r-2 border-[#2f303b] w-full">
-        <div className="pt-3">
-            <Logo/>
-        </div>
-        <div className="my-5">
-            <div className="flex items-center justify-between pr-10 ">
-                <Title text={'Direct Messages'} />
-                <NewDM/>
+      <div className="pt-3">
+        <Logo />
+      </div>
+      <div className="my-5">
 
-            </div>
+          <div className="flex items-center justify-between pr-10">
+            <Title text={"Direct Messages"} />
+            <NewDM />
+          </div>
+          <div className="max-h-[38vh] overflow-y-auto scrollbar-hidden flex w-full ">
+            <ContactList contacts={directMessagesContacts} />
+          </div>
+     
+      </div>
+      <div className="my-5">
+        <div className="flex items-center justify-between pr-10 ">
+          <Title text={"Channels"} />
         </div>
-         <div className="my-5">
-            <div className="flex items-center justify-between pr-10 ">
-                <Title text={'Channels'} />
-
-            </div>
-        </div>
-        <ProfileInfo/>
+      </div>
+      <ProfileInfo />
     </div>
-  )
-}
+  );
+};
 
-export default ContactsContainer
+export default ContactsContainer;
 
 const Logo = () => {
   return (
@@ -61,11 +91,12 @@ const Logo = () => {
   );
 };
 
-
-const Title=({text})=>{
-    return (
-        <h6 className="uppercase tracking-widest text-neutral-500 pl-10 font-light text-opacity-90 text-sm ">{text}</h6>
-    )
-}
+const Title = ({ text }) => {
+  return (
+    <h6 className="uppercase tracking-widest text-neutral-500 pl-10 font-light text-opacity-90 text-sm ">
+      {text}
+    </h6>
+  );
+};
 
 // export default Logo;

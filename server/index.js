@@ -6,6 +6,7 @@ import mongoose from 'mongoose';
 import authRouter from './routes/auth.route.js';
 import contactRoute from './routes/contact.route.js';
 import setupSocket from './socket.js';
+import messageRoute from './routes/message.route.js';
 dotenv.config();
 const app=express();
 
@@ -17,6 +18,7 @@ app.use(cors({
 }))
 
 app.use('/uploads/profiles', express.static("uploads/profiles"))
+app.use('/uploads/files', express.static("uploads/files"))
 app.use(cookieParser());
 app.use(express.json());
 
@@ -24,6 +26,7 @@ const PORT=process.env.PORT || 4000;
 
 app.use('/api/auth', authRouter)
 app.use('/api/contacts', contactRoute)
+app.use('/api/messages', messageRoute)
 
 const server=app.listen(PORT, ()=>{
     console.log(`server started at http://localhost:${PORT}`);
