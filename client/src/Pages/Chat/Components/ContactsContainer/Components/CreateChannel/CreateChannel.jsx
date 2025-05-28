@@ -19,6 +19,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { apiClient } from "../../../../../../lib/apiClient";
 import {
+  CREATE_CHANNEL_ROUTE,
   GET_ALL_CONTACTS_ROUTE,
 } from "../../../../../../utils/constants";
 import { useAppStore } from "../../../../../../Store";
@@ -26,7 +27,7 @@ import { useEffect } from "react";
 import MultipleSelector from "../../../../../../components/ui/multipleselect";
 
 const CreateChannel = () => {
-  const { setSelectedChatType, setSelectedChatData } = useAppStore();
+  const {  addChannel } = useAppStore();
   const [newChannelModel, setNewChannelModel] = useState(false);
   const [allContacts, setAllContacts] = useState([]);
   const [selectedContacts, setSelectedContacts] = useState([]);
@@ -50,8 +51,19 @@ const CreateChannel = () => {
     getData();
   }, []);
 
-  const createChannel = async (params) => {
+  const createChannel = async () => {
     try {
+      if(channelName.length >0  && selectedContacts.length>0 ){
+
+        const res=await apiClient.post(CREATE_CHANNEL_ROUTE, {name: channelName, members: selectedContacts.map((contact)=> contact.value)},{withCredentials: true})
+        if(res.status === 201){
+          setChannelName('')
+          setSelectedContacts([])
+          setNewChannelModel(false);
+          addChannel(res.data.channel)
+        }
+      }
+
     } catch (e) {
       const errorMessage =
         e?.response?.data?.message || "Something went wrong. Please try again.";
