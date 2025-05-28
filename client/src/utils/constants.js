@@ -14,13 +14,16 @@ export const SIGNOUT_ROUTE=`${AUTH_ROUTES}/logOut`
 export const CONTACTS_ROUTE="api/contacts";
 export const SEARCH_CONTACTS=`${CONTACTS_ROUTE}/search`
 export const GET_DM_CONTACTS_ROUTE=`${CONTACTS_ROUTE}/get-contacts-dm`
+export const GET_ALL_CONTACTS_ROUTE=`${CONTACTS_ROUTE}/get-all-contacts`
 
 
 export const MESSAGE_ROUTE='api/messages'
 export const GET_ALL_MESSAGES=`${MESSAGE_ROUTE}/get-messages`
 export const UPLOAD_FILE_ROUTE=`${MESSAGE_ROUTE}/upload-files`
 
+export const CHANNEL_ROUTE='api/channel'
+export const CREATE_CHANNEL_ROUTE=`${CHANNEL_ROUTE}/create-channel`
 
 
 
-// upload-files
+

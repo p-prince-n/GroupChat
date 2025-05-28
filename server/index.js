@@ -7,6 +7,7 @@ import authRouter from './routes/auth.route.js';
 import contactRoute from './routes/contact.route.js';
 import setupSocket from './socket.js';
 import messageRoute from './routes/message.route.js';
+import channelRoute from './routes/channel.route.js';
 dotenv.config();
 const app=express();
 
@@ -27,6 +28,7 @@ const PORT=process.env.PORT || 4000;
 app.use('/api/auth', authRouter)
 app.use('/api/contacts', contactRoute)
 app.use('/api/messages', messageRoute)
+app.use('/api/channel', channelRoute)
 
 const server=app.listen(PORT, ()=>{
     console.log(`server started at http://localhost:${PORT}`);

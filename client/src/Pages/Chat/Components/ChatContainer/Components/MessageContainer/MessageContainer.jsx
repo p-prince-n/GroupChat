@@ -1,11 +1,12 @@
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import { useAppStore } from "../../../../../../Store";
 import moment from "moment";
 import { toast } from "sonner";
 import { apiClient } from "../../../../../../lib/apiClient";
 import { GET_ALL_MESSAGES, HOST } from "../../../../../../utils/constants";
 import { MdFolderZip } from "react-icons/md";
-import {IoMdArrowDown} from 'react-icons/io'
+import { IoMdArrowDown } from "react-icons/io";
+import {IoCloseSharp} from 'react-icons/io5'
 
 const MessageContainer = () => {
   const scrollRef = useRef();
@@ -14,7 +15,11 @@ const MessageContainer = () => {
     selectedChatData,
     selectedChatMessages,
     setSelectedChatMessages,
+    setFileDownloadProgress,
+    setIsDownloading,
   } = useAppStore();
+  const [showImage, setShowImage] = useState(false);
+  const [imageUrl, setImageUrl] = useState(null);
 
   useEffect(() => {
     const getMessages = async () => {
@@ -57,22 +62,21 @@ const MessageContainer = () => {
   const renderMessages = () => {
     let lastDate = null;
     return selectedChatMessages.map((message, index) => {
-      const messageDate = moment(message.timestamp).format("YYYY-MM-DD");
+      const messageDate = moment(message.createdAt).format("YYYY-MM-DD");
       const showDate = messageDate !== lastDate;
       lastDate = messageDate;
       //today
-      const isToday = moment(message.timestamp).isSame(moment(), "day");
+      const isToday = moment(message.createdAt).isSame(moment(), "day");
       //yesterday
-      const isYesterday = moment(message.timestamp).isSame(
+      const isYesterday = moment(message.createdAt).isSame(
         moment().subtract(1, "day"),
         "day"
       );
-      //checking toady and yesterday based on isToday and isYesterDay
       const displayDate = isToday
         ? "Today"
         : isYesterday
         ? "Yesterday"
-        : moment(message.timestamp).format("LL");
+        : moment(message.createdAt).format("LL");
 
       return (
         <div key={index}>
@@ -84,18 +88,28 @@ const MessageContainer = () => {
       );
     });
   };
-  const downloadFile=async(fileUrl)=>{
-    const res=await apiClient.get(`${HOST}/${fileUrl}`, {responseType: 'blob'});
-    const urlBlob=window.URL.createObjectURL(new Blob([res.data]))
-    const link=document.createElement("a");
-    link.href=urlBlob;
-    link.setAttribute("download", fileUrl.split('/').pop())
+  const downloadFile = async (fileUrl) => {
+    setIsDownloading(true)
+    setFileDownloadProgress(0)
+    const res = await apiClient.get(`${HOST}/${fileUrl}`, {
+      responseType: "blob",
+      onDownloadProgress: (progressEvent)=>{
+        const {loaded, total}=progressEvent;
+        const percentCompleted=Math.round((100 * loaded)/ total);
+        setFileDownloadProgress(percentCompleted)
+      }
+    });
+    const urlBlob = window.URL.createObjectURL(new Blob([res.data]));
+    const link = document.createElement("a");
+    link.href = urlBlob;
+    link.setAttribute("download", fileUrl.split("/").pop());
     document.body.appendChild(link);
     link.click();
     link.remove();
-    window.URL.revokeObjectURL(urlBlob)
-
-  }
+    window.URL.revokeObjectURL(urlBlob);
+    setIsDownloading(false);
+    setFileDownloadProgress(0)
+  };
 
   const renderDMMessages = (message) => {
     return (
@@ -124,7 +138,13 @@ const MessageContainer = () => {
             } border inline-block p-4 rounded my-1 max-w-[50%] break-words `}
           >
             {checkImage(message.fileUrl) ? (
-              <div className="cursor-pointer">
+              <div
+                className="cursor-pointer"
+                onClick={() => {
+                  setShowImage(true);
+                  setImageUrl(message.fileUrl);
+                }}
+              >
                 <img
                   src={`${HOST}/${message.fileUrl}`}
                   height={300}
@@ -137,8 +157,15 @@ const MessageContainer = () => {
                 <span className=" p-2 text-white/8- sm:inline-block sm:text-3xl bg-black/20 rounded-full md:p-3 ">
                   <MdFolderZip />
                 </span>
-                <span className="line-clamp-2 text-sm">{message.fileUrl.split('/').pop()}</span>
-                <span className="p-1 bg-black/20 md:p-3 sm:text-2xl rounded-full hover:bg-black/50 cursor-pointer transition-all duration-300" onClick={()=>downloadFile(message.fileUrl)}><IoMdArrowDown/></span>
+                <span className="line-clamp-2 text-sm">
+                  {message.fileUrl.split("/").pop()}
+                </span>
+                <span
+                  className="p-1 bg-black/20 md:p-3 sm:text-2xl rounded-full hover:bg-black/50 cursor-pointer transition-all duration-300"
+                  onClick={() => downloadFile(message.fileUrl)}
+                >
+                  <IoMdArrowDown />
+                </span>
               </div>
             )}
           </div>
@@ -153,6 +180,34 @@ const MessageContainer = () => {
     <div className="flex-1 overscroll-y-auto scrollbar-hidden p-4 px-8 md:w-[65vw] lg:w-[70vw] xl:w-[80vw] w-full">
       {renderMessages()}
       <div ref={scrollRef} />
+      {showImage && (
+        <div className="fixed z-[1000] top-0 left-0 h-[100vh] w-[100vw] flex items-center justify-center backdrop-blur-lg flex-col ">
+          <div className="p-4 sm:px-10">
+            <img
+              src={`${HOST}/${imageUrl}`}
+              alt="image"
+              className=" h-[300px] w-[100%] sm:h-[50vh] sm:w-full bg-cover "
+            />
+          </div>
+          <div className="flex gap-5 fixed top-0 mt-5">
+            <button
+              className=" bg-black/20 p-3 text-2xl rounded-full hover:bg-black/50 cursor-pointer transition-all duration-300"
+              onClick={() => downloadFile(imageUrl)}
+            >
+              <IoMdArrowDown />
+            </button>
+            <button
+              className=" bg-black/20 p-3 text-2xl rounded-full hover:bg-black/50 cursor-pointer transition-all duration-300"
+              onClick={() => {
+                setShowImage(false);
+                setImageUrl(null);
+              }}
+            >
+              <IoCloseSharp />
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
