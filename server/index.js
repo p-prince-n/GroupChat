@@ -36,4 +36,5 @@ const server=app.listen(PORT, ()=>{
 })
 setupSocket(server)
 
-mongoose.connect(process.env.DB_URI).then((val)=>console.log('db connected successfully'));
+mongoose.connect(process.env.DB_URI).then((val)=>console.log('db connected successfully')).catch((e)=>{console.log(e);
+});

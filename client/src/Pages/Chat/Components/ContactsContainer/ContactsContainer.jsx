@@ -1,7 +1,7 @@
 import ContactList from "../../../../components/ContactList";
 import { apiClient } from "../../../../lib/apiClient";
 import { useAppStore } from "../../../../Store";
-import { GET_DM_CONTACTS_ROUTE } from "../../../../utils/constants";
+import { GET_DM_CONTACTS_ROUTE, GET_USER_CHANNEL_ROUTE } from "../../../../utils/constants";
 import CreateChannel from "./Components/CreateChannel/CreateChannel";
 import NewDM from "./Components/NewDM/NewDM";
 import ProfileInfo from "./Components/ProfileInfo/ProfileInfo";
@@ -9,7 +9,7 @@ import { useEffect } from "react";
 import { toast } from "sonner";
 
 const ContactsContainer = () => {
-  const { setDirectMessagesContacts, directMessagesContacts,  channels } = useAppStore();
+  const { setDirectMessagesContacts, directMessagesContacts,  channels, setChannels } = useAppStore();
   useEffect(() => {
     const getContacts = async () => {
       try {
@@ -26,10 +26,27 @@ const ContactsContainer = () => {
         toast.error(errorMessage);
       }
     };
-    getContacts();
+    const getUserChannels = async () => {
+      try {
+        const res = await apiClient.get(GET_USER_CHANNEL_ROUTE, {
+          withCredentials: true,
+        });
+        if (res.data.channels) {
+          setChannels(res.data.channels);
+        }
+      } catch (e) {
+        const errorMessage =
+          e?.response?.data?.message ||
+          "Something went wrong. Please try again.";
+        toast.error(errorMessage);
+      }
+    };
 
-    return () => {};
-  }, []);
+
+
+    getContacts();
+    getUserChannels();
+  }, [setChannels, setDirectMessagesContacts]);
 
   return (
     <div className="relative md:w-[35vw] lg:w-[30vw] xl:w-[20vw] bg-[#1b1c24] border-r-2 border-[#2f303b] w-full">

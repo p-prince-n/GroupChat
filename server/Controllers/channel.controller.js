@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import Channel from "../models/channel.model.js";
 import User from "../models/user.model.js";
 
@@ -20,4 +21,23 @@ export const createChannel=async(req, res, next)=>{
         res.status(500).json({message: e.message})
         
     }
+}
+
+
+export const getUserChannel=async(req, res, next)=>{
+    try{
+        const userId=new mongoose.Types.ObjectId(req.userId);
+        const channels=await Channel.find({
+            $or: [
+                {admin: userId},
+                {members: userId},
+            ]
+        }).sort({updatedAt: -1})
+        res.status(200).json({channels})
+
+    }catch (error) {
+        res.status(500).json({message: e.message})
+        
+    }
+
 }
