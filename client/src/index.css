@@ -136,6 +136,6 @@
 }
 
 .custom-scrollbar::-webkit-scrollbar {
-  width: 8px;              /* For vertical scrollbar */
-  height: 8px;             /* For horizontal scrollbar */
+  width: 8px;          
+  height: 8px;          
 }
