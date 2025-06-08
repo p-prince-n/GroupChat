@@ -134,3 +134,8 @@
   font-weight: 300;
   font-style: normal;
 }
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;              /* For vertical scrollbar */
+  height: 8px;             /* For horizontal scrollbar */
+}

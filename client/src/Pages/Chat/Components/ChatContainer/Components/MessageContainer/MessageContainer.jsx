@@ -3,15 +3,15 @@ import { useAppStore } from "../../../../../../Store";
 import moment from "moment";
 import { toast } from "sonner";
 import { apiClient } from "../../../../../../lib/apiClient";
-import { GET_ALL_MESSAGES, HOST } from "../../../../../../utils/constants";
+import { GET_ALL_MESSAGES, GET_CHANNEL_MESSAGES_ROUTE, HOST } from "../../../../../../utils/constants";
 import { MdFolderZip } from "react-icons/md";
 import { IoMdArrowDown } from "react-icons/io";
 import { IoCloseSharp } from "react-icons/io5";
-import { userInfo } from "os";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import {getColors} from '@/lib/utils'
 
 const MessageContainer = () => {
+  const {userInfo}= useAppStore();
   const scrollRef = useRef();
   const {
     selectedChatType,
@@ -43,9 +43,31 @@ const MessageContainer = () => {
         toast.error(errorMessage);
       }
     };
+
+    const  getChannelMessages = async () => {
+      try {
+        const res = await apiClient.get(
+          `${GET_CHANNEL_MESSAGES_ROUTE}/${selectedChatData._id}`,
+          { id: selectedChatData._id },
+          { withCredentials: true }
+        );
+
+        if (res.data.messages) {
+          setSelectedChatMessages(res.data.messages);
+        }
+      } catch (e) {
+        const errorMessage =
+          e?.response?.data?.message ||
+          "Something went wrong. Please try again.";
+        toast.error(errorMessage);
+      }
+    };
     if (selectedChatData._id) {
       if (selectedChatType === "contact") {
         getMessages();
+      }
+      if(selectedChatType === 'channels'){
+        getChannelMessages();
       }
     }
   }, [selectedChatData, selectedChatType, setSelectedChatMessages]);
@@ -273,7 +295,7 @@ const MessageContainer = () => {
     );
   };
   return (
-    <div className="flex-1 overscroll-y-auto scrollbar-hidden p-4 px-8 md:w-[65vw] lg:w-[70vw] xl:w-[80vw] w-full">
+    <div className="flex-1 overflow-y-auto p-4 px-8 custom-scrollbar">
       {renderMessages()}
       <div ref={scrollRef} />
       {showImage && (

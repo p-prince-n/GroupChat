@@ -12,8 +12,9 @@ const ChatHeader = () => {
         <div className="flex gap-3 items-center justify-center   ">
           <div className="size-12 relative  ">
             {selectedChatType === 'channel' && selectedChatData.name}
-            {selectedChatType === 'contacts' ? (
+            {selectedChatType === 'contact' ? (
               <Avatar className="size-12 rounded-full overflow-hidden">
+                
               {selectedChatData.image ? (
                 <AvatarImage
                   src={`${HOST}/${selectedChatData.image}`}
