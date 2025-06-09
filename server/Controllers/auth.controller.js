@@ -13,23 +13,15 @@ export const signUp = async (req, res, next) => {
         const { email, password } = req.body;
         if (!email || !password) return res.status(400).json({ message: 'All fields are required' });
 
-        // const user= await User.create({email, password});
-        // res.cookie("jwt", createToken(email, user._id),{
-        //     maxAge,
-        //     secure: true,
-        //     sameSite: 'None',
-        // });
-
-
-
-        // res.status(201).json(user);
         const user = await User.create({ email, password });
 
         const { password: _, ...safeUser } = user.toObject(); // Exclude password
 
         res.cookie("jwt", createToken(email, user._id), {
             maxAge,
+            httpOnly: true,
             secure: true,
+            secure: process.env.NODE_ENV === 'production',
             sameSite: "None",
         });
 
@@ -47,16 +39,6 @@ export const logIn = async (req, res, next) => {
     try {
         const { email, password } = req.body;
         if (!email || !password) return res.status(400).json({ message: 'All fields are required' });
-        // const user = await User.findOne({ email });
-        // if (!user) return res.status(404).json({ message: 'User with this email doesn\'t exist. ' });
-        // const auth = await compare(password, user.password);
-        // if (!auth) return res.status(400).json({ message: 'Incorrect Password ' });
-        // res.cookie("jwt", createToken(email, user._id), {
-        //     maxAge,
-        //     secure: true,
-        //     sameSite: 'None',
-        // })
-        // res.status(200).json(user);
         const user = await User.findOne({ email });
         if (!user) return res.status(404).json({ message: "User with this email doesn't exist." });
 
@@ -67,6 +49,8 @@ export const logIn = async (req, res, next) => {
 
         res.cookie("jwt", createToken(email, user._id), {
             maxAge,
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
             secure: true,
             sameSite: "None",
         });
@@ -127,7 +111,6 @@ export const addProfileImage = async (req, res, next) => {
     const date = Date.now();
     const uploadsDir = "uploads/profiles";
 
-    // ✅ Create directory if it doesn't exist
     if (!existsSync(uploadsDir)) {
       mkdirSync(uploadsDir, { recursive: true });
     }
@@ -163,7 +146,7 @@ export const removeProfileImage=async(req, res, next)=>{
 
 export const logOut=async(req, res, next)=>{
     try{
-        res.cookie("jwt", "", {maxAge: 1, secure: true,sameSite: 'None'})
+        res.cookie("jwt", "", {maxAge: 1,httpOnly: true, secure: process.env.NODE_ENV === 'production',sameSite: 'None'})
         return res.status(200).send("Log out successfully");
 
     }catch (e) {
