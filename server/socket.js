@@ -72,15 +72,13 @@ const setupSocket = (server) => {
         const userId = socket.handshake.query.userId;
         if (userId) {
             userSocketMap.set(userId, socket.id);
-            console.log(`User connected : ${userId} with socket id : ${socket.id}`);
-            console.log("Current socket map:", Array.from(userSocketMap.entries()));
 
         } else {
             console.log("User Id not provided during connection.");
 
         }
         socket.on("sendMessage", sendMessage)
-        socket.on("send-message-channel", sendChannelMessage)
+        socket.on("send-channel-message", sendChannelMessage)
         socket.on("disconnect", () => disconnect(socket))
     })
 

@@ -112,12 +112,12 @@ const MessageBar = () => {
   };
 
   return (
-    <div className="h-[10vh]  bg-[#1c1d25] flex justify-center items-center px-8 mb-6 gap-6 ">
-      <div className="flex-1 flex bg-[#2a2b33] rounded-md gap-5 pr-5 ">
+    <div className="h-[6vh] px-2 sm:h-[10vh]  bg-[#1c1d25] flex justify-center items-center sm:px-8 mb-6 gap-2 md:gap-6 ">
+      <div className="flex-1  flex h-14 md:h-auto bg-[#2a2b33] rounded-md gap-3 md:gap-5 pr-5 w-3/4 ">
         <input
           placeholder="Enter Message"
           type="text"
-          className="flex-1 p-5 bg-transparent rounded-md focus:border-none focus:outline-none "
+          className="flex-1 w-3/5 p-5 bg-transparent rounded-md focus:border-none focus:outline-none "
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           name=""
@@ -127,14 +127,14 @@ const MessageBar = () => {
           className="text-neutral-500 focus:border-none focus:outline-none focus:text-white duration-300 transition-all"
           onClick={handleAttachmentClick}
         >
-          <GrAttachment className="text-2xl" />
+          <GrAttachment className=" text-[18px]  sm:text-2xl" />
         </button>
-        <div className="relative top-5">
+        <div className="relative top-4 md:top-5 ">
           <button
             className="text-neutral-500 focus:border-none focus:outline-none focus:text-white duration-300 transition-all"
             onClick={() => setEmojiPickerOpen(true)}
           >
-            <RiEmojiStickerLine className="text-2xl" />
+            <RiEmojiStickerLine className="text-[22px]  sm:text-2xl" />
           </button>
           <input
             type="file"
@@ -142,7 +142,10 @@ const MessageBar = () => {
             ref={fileInputRef}
             onChange={handleAttachmentChange}
           />
-          <div className="absolute bottom-16 right-0 " ref={emojiRef}>
+          
+        </div>
+        <div>
+          <div className=" absolute bottom-30 right-5 md:right-20" ref={emojiRef}>
             <EmojiPicker
               theme="dark"
               open={emojiPickerOpen}
@@ -153,10 +156,10 @@ const MessageBar = () => {
         </div>
       </div>
       <button
-        className="bg-[#8417ff] rounded-md flex items-center justify-center p-5 hover:bg-[#741bda] focus:bg-[#741bda] focus:border-none focus:outline-none focus:text-white duration-300 transition-all"
+        className="bg-[#8417ff] rounded-md size-10 sm:size-auto  flex items-center justify-center p-0 sm:p-5 hover:bg-[#741bda] focus:bg-[#741bda] focus:border-none focus:outline-none focus:text-white duration-300 transition-all"
         onClick={handleSendMessage}
       >
-        <IoSend className="text-2xl" />
+        <IoSend className="text-[16px]  sm:text-2xl" />
       </button>
     </div>
   );

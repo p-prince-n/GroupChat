@@ -1,4 +1,4 @@
-import React from "react";
+
 import { useAppStore } from "../Store";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { HOST } from "../utils/constants";
@@ -57,7 +57,7 @@ const ContactList = ({ contacts, isChannel = false }) => {
               </Avatar>
             )}
             {
-                isChannel && <div className="bg-[#ffffff22] size-10 flex items-center justify-center rounded-full">#</div>
+                isChannel && <div className="bg-[#ffffff22] size-10 flex items-center justify-center rounded-full">{contact.name.charAt(0)}</div>
             }
             {
                 isChannel ? <span>{contact.name}</span> : <span>{contact.firstName ? `${contact.firstName} ${contact.lastName}` : contact.email}</span>

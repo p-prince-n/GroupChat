@@ -48,7 +48,6 @@ const MessageContainer = () => {
       try {
         const res = await apiClient.get(
           `${GET_CHANNEL_MESSAGES_ROUTE}/${selectedChatData._id}`,
-          { id: selectedChatData._id },
           { withCredentials: true }
         );
 
@@ -66,7 +65,7 @@ const MessageContainer = () => {
       if (selectedChatType === "contact") {
         getMessages();
       }
-      if(selectedChatType === 'channels'){
+      if(selectedChatType === 'channel'){
         getChannelMessages();
       }
     }
@@ -109,7 +108,7 @@ const MessageContainer = () => {
             <div className="text-center text-gray-500 my-2 ">{displayDate}</div>
           )}
           {selectedChatType === "contact" && renderDMMessages(message)}
-          {selectedChatType === "channel" && renderChannelMessages(messages)}
+          {selectedChatType === "channel" && renderChannelMessages(message)}
         </div>
       );
     });
@@ -203,7 +202,6 @@ const MessageContainer = () => {
     );
   };
   const renderChannelMessages = (message) => {
-    console.log(message);
 
     return (
       <div

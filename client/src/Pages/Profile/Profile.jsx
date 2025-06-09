@@ -96,7 +96,6 @@ const Profile = () => {
       try {
         const res=await apiClient.post(UPDATE_PROFILE_ROUTE, {firstName, lastName, color:selectedColor+1}, {withCredentials: true});
         if(res.status === 200 && res.data){
-          console.log(res.data);
           
           setUserInfo({...res.data});
           toast.success('Profile Updated successfully.')

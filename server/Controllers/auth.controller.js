@@ -97,7 +97,6 @@ export const updateProfile = async (req, res, next) => {
     try {
         const { userId } = req;
         const { firstName, lastName, color } = req.body;
-        console.log(req.body);
         
         if (!firstName || !lastName || color<0) return res.status(400).json({ message: 'firstName, lastname nad color are required fields.' });
         const userData = await User.findByIdAndUpdate(

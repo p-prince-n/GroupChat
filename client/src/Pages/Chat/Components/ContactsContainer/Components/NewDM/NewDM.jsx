@@ -39,7 +39,6 @@ const NewDM = () => {
           { withCredentials: true }
         );
         if (res.status === 200 && res.data) {
-          console.log(res.data);
 
           setSearchContacts(res.data);
         }

@@ -14,7 +14,7 @@ export const createChannel=async(req, res, next)=>{
             name, members, admin:userId,
         })
         await newChannel.save();
-        res.status(201).json({newChannel});
+        res.status(201).json({channel:newChannel});
 
         
     } catch (error) {
