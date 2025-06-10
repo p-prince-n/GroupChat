@@ -7,6 +7,7 @@ import { useEffect, useState } from "react"
 import { apiClient } from "./lib/apiClient"
 import { GET_USER_INFO } from "./utils/constants"
 import { toast } from "sonner";
+import { Spinner } from "flowbite-react";
 
 const PrivateRoute=({children})=>{
 const {userInfo}=useAppStore();
@@ -53,7 +54,9 @@ function App() {
     }
   }, []);
   if(loading){
-    return <div>Loading...</div>
+    return <div className="min-h-screen min-w-screen flex items-center justify-center">
+      <Spinner aria-label="Extra large spinner example" size="xl" />
+    </div>
   }
 
   return (

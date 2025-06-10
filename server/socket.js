@@ -6,7 +6,8 @@ import Channel from './models/channel.model.js'
 const setupSocket = (server) => {
     const io = new SocketIoServer(server, {
         cors: {
-            origin: 'https://chatapp-bbpj.onrender.com',
+            // origin: 'https://chatapp-bbpj.onrender.com',
+            origin:"http://localhost:5173",
             methods: ["GET", "POST"],
             credentials: true,
         }
