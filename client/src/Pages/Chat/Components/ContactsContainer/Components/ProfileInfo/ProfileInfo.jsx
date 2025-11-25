@@ -42,7 +42,7 @@ const ProfileInfo = () => {
           <Avatar className="size-12 rounded-full overflow-hidden">
             {userInfo.image ? (
               <AvatarImage
-                src={`${HOST}/${userInfo.image}`}
+                src={`${userInfo.image}`}
                 alt="profile"
                 className="object-cover size-full bg-black"
               />

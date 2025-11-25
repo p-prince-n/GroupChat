@@ -9,7 +9,12 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { apiClient } from "../../lib/apiClient";
-import { ADD_PROFILE_IMAGE_ROUTE, HOST, REMOVE_PROFILE_IMAGE_ROUTE, UPDATE_PROFILE_ROUTE } from "../../utils/constants";
+import {
+  ADD_PROFILE_IMAGE_ROUTE,
+  HOST,
+  REMOVE_PROFILE_IMAGE_ROUTE,
+  UPDATE_PROFILE_ROUTE,
+} from "../../utils/constants";
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -18,48 +23,58 @@ const Profile = () => {
   const [lastName, setLastName] = useState("");
   const [image, setImage] = useState(null);
   const [selectedColor, setSelectedColor] = useState(0);
-  const fileInputRef=useRef(null);
+  const fileInputRef = useRef(null);
 
-  const handleFileInputClick=()=>{
+  const handleFileInputClick = () => {
     fileInputRef.current.click();
-  }
+  };
 
-   const handleImageChange=async(e)=>{
-    const file=e.target.files[0];
-    if(file){
-      const formData=new FormData();
-      formData.append("profile-image", file);
-      const res=await apiClient.post(ADD_PROFILE_IMAGE_ROUTE, formData, {withCredentials: true});
-      if(res.status === 200 && res.data.image){
-        setUserInfo({...userInfo, image:res.data.image});
-        toast.success('image updated successfully.')
+  const handleImageChange = async (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const toBase64 = (file) =>
+        new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result);
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
+
+      const base64 = await toBase64(file);
+
+      const res = await apiClient.post(
+        ADD_PROFILE_IMAGE_ROUTE,
+        { image: base64 }, // send base64 not file
+        { withCredentials: true }
+      );
+     
+      if (res.status === 200 && res.data.image) {
+        setUserInfo({ ...userInfo, image: res.data.image });
+        toast.success("image updated successfully.");
       }
-      const reader= new FileReader();
-      reader.onload=()=>{
-        setImage(reader.result)
-      }
+      const reader = new FileReader();
+      reader.onload = () => {
+        setImage(reader.result);
+      };
       reader.readAsDataURL(file);
-
     }
-
-
-   }
-   const handleImagedelete=async()=>{
-    try{
-      const res=await apiClient.delete(REMOVE_PROFILE_IMAGE_ROUTE, {withCredentials: true})
-      if(res.status === 200 ){
-        setUserInfo({...userInfo, image: null})
-        toast.success('image removed successfully.')
+  };
+  const handleImagedelete = async () => {
+    try {
+      const res = await apiClient.delete(REMOVE_PROFILE_IMAGE_ROUTE, {
+        withCredentials: true,
+      });
+      if (res.status === 200) {
+        setUserInfo({ ...userInfo, image: null });
+        toast.success("image removed successfully.");
         setImage(null);
       }
-
-    }catch (e) {
-        const errorMessage =
-          e?.response?.data?.message ||
-          "Something went wrong. Please try again.";
-        toast.error(errorMessage);
-      }
-   }
+    } catch (e) {
+      const errorMessage =
+        e?.response?.data?.message || "Something went wrong. Please try again.";
+      toast.error(errorMessage);
+    }
+  };
   const validatProfile = () => {
     if (!firstName) {
       toast.error("First Name is required.");
@@ -72,35 +87,37 @@ const Profile = () => {
     return true;
   };
 
-  useEffect(()=>{
-    if(userInfo.profileSetup===true){
+  useEffect(() => {
+    if (userInfo.profileSetup === true) {
       setFirstName(userInfo.firstName);
-      setLastName(userInfo.lastName)
-      setSelectedColor(userInfo.color)
+      setLastName(userInfo.lastName);
+      setSelectedColor(userInfo.color);
     }
-    if(userInfo.image){
-      setImage(`${HOST}/${userInfo.image}`)
+    if (userInfo.image) {
+      setImage(`${HOST}/${userInfo.image}`);
     }
   }, [userInfo]);
 
-  const handleNavigate=()=>{
-    if(userInfo.profileSetup){
-      navigate('/chat')
-    }else{
-      toast.error('Please setup Profile first.....')
+  const handleNavigate = () => {
+    if (userInfo.profileSetup) {
+      navigate("/chat");
+    } else {
+      toast.error("Please setup Profile first.....");
     }
-  }
+  };
 
   const saveChanges = async () => {
     if (validatProfile()) {
       try {
-        const res=await apiClient.post(UPDATE_PROFILE_ROUTE, {firstName, lastName, color:selectedColor+1}, {withCredentials: true});
-        if(res.status === 200 && res.data){
-          
-          setUserInfo({...res.data});
-          toast.success('Profile Updated successfully.')
-          navigate('/chat')
-
+        const res = await apiClient.post(
+          UPDATE_PROFILE_ROUTE,
+          { firstName, lastName, color: selectedColor + 1 },
+          { withCredentials: true }
+        );
+        if (res.status === 200 && res.data) {
+          setUserInfo({ ...res.data });
+          toast.success("Profile Updated successfully.");
+          navigate("/chat");
         }
       } catch (e) {
         const errorMessage =
@@ -146,15 +163,24 @@ const Profile = () => {
             </Avatar>
 
             {/* Hover icon overlay */}
-            <div className="absolute inset-0 bg-black/50 rounded-full hidden group-hover:flex items-center justify-center cursor-pointer transition" onClick={image ? handleImagedelete : handleFileInputClick}>
-              {image ? (  
+            <div
+              className="absolute inset-0 bg-black/50 rounded-full hidden group-hover:flex items-center justify-center cursor-pointer transition"
+              onClick={image ? handleImagedelete : handleFileInputClick}
+            >
+              {image ? (
                 <FaTrash className="text-white text-3xl" />
               ) : (
                 <FaPlus className="text-white text-3xl" />
               )}
             </div>
-            <input type="file" hidden ref={fileInputRef} accept=".png, .jpeg, .jpg, .svg, .webp" onChange={handleImageChange} name="profile-image" />
-            
+            <input
+              type="file"
+              hidden
+              ref={fileInputRef}
+              accept=".png, .jpeg, .jpg, .svg, .webp"
+              onChange={handleImageChange}
+              name="profile-image"
+            />
           </div>
 
           {/* Form fields */}

@@ -38,7 +38,7 @@ const ContactList = ({ contacts, isChannel = false }) => {
               <Avatar className="size-10 rounded-full overflow-hidden">
                 {contact.image ? (
                   <AvatarImage
-                    src={`${HOST}/${contact.image}`}
+                    src={`${contact.image}`}
                     alt="profile"
                     className="object-cover size-full bg-black"
                   />
