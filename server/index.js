@@ -12,7 +12,7 @@ dotenv.config();
 const app=express();
 
 app.use(cors({
-    origin: 'https://chatapp-bbpj.onrender.com',
+    origin: ["http://localhost:5173", 'https://chatapp-bbpj.onrender.com'],
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     credentials: true
 

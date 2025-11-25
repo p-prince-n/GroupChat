@@ -1,7 +1,7 @@
-import { compare, genSalt, hash } from "bcrypt";
+import { compare} from "bcrypt";
 import User from "../models/user.model.js";
 import jwt from "jsonwebtoken";
-import { renameSync, mkdirSync, existsSync, unlinkSync } from 'fs';
+import cloudinary from "../utils/cloudinaryConfig.js";
 
 const maxAge = 7 * 24 * 60 * 60 * 1000;
 const createToken = (email, userId) => {
@@ -106,21 +106,24 @@ export const updateProfile = async (req, res, next) => {
 
 export const addProfileImage = async (req, res, next) => {
   try {
-    if (!req.file) return res.status(404).json({ message: 'File is required' });
+    const { image } = req.body;
 
-    const date = Date.now();
-    const uploadsDir = "uploads/profiles";
+    if (!image)
+      return res.status(400).json({ message: "Image is required (send base64)" });
 
-    if (!existsSync(uploadsDir)) {
-      mkdirSync(uploadsDir, { recursive: true });
-    }
-
-    const fileName = `${uploadsDir}/${date}-${req.file.originalname}`;
-    renameSync(req.file.path, fileName);
+    // Upload Base64 directly to Cloudinary
+    const result = await cloudinary.uploader.upload(image, {
+      folder: "chatApp/profiles",
+      resource_type: "image",
+      transformation: [{ width: 400, height: 400, crop: "fill" }],
+    });
 
     const updatedUser = await User.findByIdAndUpdate(
       req.userId,
-      { image: fileName },
+      {
+        image: result.secure_url,
+        imagePublicId: result.public_id,
+      },
       { new: true, runValidators: true }
     );
 
@@ -129,20 +132,29 @@ export const addProfileImage = async (req, res, next) => {
     res.status(500).json({ message: e.message });
   }
 };
-export const removeProfileImage=async(req, res, next)=>{
-    try{
-        const {userId}=req;
-        const user= await User.findById(userId);
-        if(!user) return res.status(404).json({ message: 'User Not Found ' });
-        if(user.image) unlinkSync(user.image);
-        user.image=null;
-        await user.save();
-        return res.status(200).send("Profile image removed successfully");
 
-    }catch (e) {
-        res.status(500).json({ message: e.message })
+export const removeProfileImage = async (req, res, next) => {
+  try {
+    const { userId } = req;
+
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    // If user already has a Cloudinary image → delete it
+    if (user.imagePublicId) {
+      await cloudinary.uploader.destroy(user.imagePublicId);
     }
-}
+
+    user.image = null;
+    user.imagePublicId = null;
+    await user.save();
+
+    return res.status(200).json({ message: "Profile image removed successfully" });
+  } catch (e) {
+    res.status(500).json({ message: e.message });
+  }
+};
+
 
 export const logOut=async(req, res, next)=>{
     try{
